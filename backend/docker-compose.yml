@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nexgile
+      POSTGRES_PASSWORD: nexgile
+      POSTGRES_DB: nexgile
+    ports: ["5433:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexgile -d nexgile"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  core-api:
+    build: { context: ., dockerfile: Dockerfile }
+    command: pnpm --filter @nexgile/core-api start
+    environment:
+      DATABASE_URL: postgresql://nexgile:nexgile@postgres:5432/nexgile?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-development-only-secret}
+      PORT: 3001
+    ports: ["3001:3001"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+  advisor-api:
+    build: { context: ., dockerfile: Dockerfile }
+    command: pnpm --filter @nexgile/advisor-api start
+    environment:
+      DATABASE_URL: postgresql://nexgile:nexgile@postgres:5432/nexgile?schema=public
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-development-only-secret}
+      PORT: 3002
+    ports: ["3002:3002"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+volumes:
+  postgres-data:

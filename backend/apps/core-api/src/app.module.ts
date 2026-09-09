@@ -1,0 +1,2 @@
+import { Module } from '@nestjs/common'; import { JwtModule } from '@nestjs/jwt'; import { CoreController } from './core.controller'; import { CoreService } from './core.service';
+@Module({ imports: [JwtModule.register({ secret: process.env.JWT_SECRET || 'development-only-secret', signOptions: { expiresIn: '8h' } })], controllers: [CoreController], providers: [CoreService] }) export class AppModule {}

@@ -1,0 +1,7 @@
+{
+  "name": "nexgile-backend",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": { "build": "turbo run build", "test": "turbo run test", "dev": "turbo run dev", "db:generate": "pnpm --filter @nexgile/db generate", "db:seed": "pnpm --filter @nexgile/db seed" },
+  "devDependencies": { "turbo": "^2.3.3", "typescript": "^5.7.2", "prettier": "^3.4.2", "eslint": "^9.16.0" }
+}

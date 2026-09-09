@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Household {
+  id String @id @default(cuid())
+  name String
+  people Person[]
+  accounts Account[]
+  goals Goal[]
+  documents Document[]
+  createdAt DateTime @default(now())
+}
+
+model Person {
+  id String @id @default(cuid())
+  householdId String?
+  household Household? @relation(fields: [householdId], references: [id])
+  email String @unique
+  passwordHash String
+  name String
+  roles RoleAssignment[]
+  notifications Notification[]
+  createdAt DateTime @default(now())
+}
+
+model RoleAssignment {
+  id String @id @default(cuid())
+  personId String
+  person Person @relation(fields: [personId], references: [id])
+  role String
+  scopeType String
+  scopeId String
+  @@index([personId, role, scopeType, scopeId])
+}
+
+model Custodian {
+  id String @id @default(cuid())
+  name String
+  accounts Account[]
+}
+
+model Account {
+  id String @id @default(cuid())
+  householdId String
+  household Household @relation(fields: [householdId], references: [id])
+  custodianId String
+  custodian Custodian @relation(fields: [custodianId], references: [id])
+  accountType String
+  holdings Holding[]
+  transactions Transaction[]
+  lastSyncedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+model Security {
+  id String @id @default(cuid())
+  ticker String @unique
+  name String
+  assetClass String
+  holdings Holding[]
+}
+
+model Holding {
+  id String @id @default(cuid())
+  accountId String
+  account Account @relation(fields: [accountId], references: [id])
+  securityId String
+  security Security @relation(fields: [securityId], references: [id])
+  quantity Decimal
+  costBasis Decimal
+  asOf DateTime
+  source String @default("mock_custodian")
+  taxLots TaxLot[]
+  @@unique([accountId, securityId])
+}
+
+model TaxLot {
+  id String @id @default(cuid())
+  holdingId String
+  holding Holding @relation(fields: [holdingId], references: [id])
+  acquiredAt DateTime
+  quantity Decimal
+  costBasis Decimal
+}
+
+model Transaction {
+  id String @id @default(cuid())
+  accountId String
+  account Account @relation(fields: [accountId], references: [id])
+  type String
+  securityId String?
+  amount Decimal
+  quantity Decimal?
+  occurredAt DateTime
+  createdAt DateTime @default(now())
+  @@index([accountId, occurredAt])
+}
+
+model Goal {
+  id String @id @default(cuid())
+  householdId String
+  household Household @relation(fields: [householdId], references: [id])
+  type String
+  name String
+  targetAmount Decimal?
+  targetDate DateTime?
+  scenarios Scenario[]
+  createdAt DateTime @default(now())
+}
+
+model Scenario {
+  id String @id @default(cuid())
+  goalId String
+  goal Goal @relation(fields: [goalId], references: [id])
+  assumptions Json
+  result Json?
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id String @id @default(cuid())
+  householdId String?
+  household Household? @relation(fields: [householdId], references: [id])
+  ownerType String
+  ownerId String
+  fileUrl String
+  category String?
+  version Int @default(1)
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id String @id @default(cuid())
+  personId String
+  person Person @relation(fields: [personId], references: [id])
+  message String
+  type String
+  read Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditEvent {
+  id String @id @default(cuid())
+  actorId String
+  entityType String
+  entityId String
+  action String
+  before Json?
+  after Json?
+  createdAt DateTime @default(now())
+  @@index([entityType, entityId, createdAt])
+}
+
+model AdvisorTeam {
+  id String @id @default(cuid())
+  name String
+  households AdvisorTeamHousehold[]
+}
+
+model AdvisorTeamHousehold {
+  id String @id @default(cuid())
+  advisorTeamId String
+  advisorTeam AdvisorTeam @relation(fields: [advisorTeamId], references: [id])
+  householdId String
+}
+
+model RiskProfile {
+  id String @id @default(cuid())
+  householdId String
+  answers Json
+  result Json
+  createdAt DateTime @default(now())
+}
+
+model RebalancingProposal {
+  id String @id @default(cuid())
+  accountId String
+  currentAllocation Json
+  targetAllocation Json
+  proposedTrades Json
+  status String @default("draft")
+  createdAt DateTime @default(now())
+}
+
+model TaxOpportunity {
+  id String @id @default(cuid())
+  accountId String
+  taxLotId String
+  type String
+  estimatedImpact Decimal
+  washSaleRisk Boolean @default(false)
+  status String @default("open")
+  createdAt DateTime @default(now())
+}
+
+model Approval {
+  id String @id @default(cuid())
+  entityType String
+  entityId String
+  approverId String
+  status String
+  notes String?
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id String @id @default(cuid())
+  householdId String
+  templateId String
+  generatedFileUrl String?
+  status String @default("queued")
+  createdAt DateTime @default(now())
+}
+
+model Sponsor {
+  id String @id @default(cuid())
+  name String
+  plans Plan[]
+}
+
+model Plan {
+  id String @id @default(cuid())
+  name String
+  sponsorId String?
+  sponsor Sponsor? @relation(fields: [sponsorId], references: [id])
+}
+
+model Participant {
+  id String @id @default(cuid())
+  planId String
+  personId String
+  contributions Contribution[]
+}
+
+model Contribution {
+  id String @id @default(cuid())
+  participantId String
+  participant Participant @relation(fields: [participantId], references: [id])
+  amount Decimal
+  occurredAt DateTime
+}

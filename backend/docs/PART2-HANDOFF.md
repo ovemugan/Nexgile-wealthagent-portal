@@ -1,0 +1,3 @@
+# Part 2 integration handoff
+
+Append models and migrations; do not rename Part 1 models. Import `CalculationResult` from `@nexgile/shared-types` and `CurrentUser`, `RequireRole` (or `requireRole`), and `JwtAuthGuard` from `@nexgile/auth`. Core API JWTs contain `{ sub, email, roles[] }`, where each role has `role`, `scopeType`, and `scopeId`. Query accounts, holdings, transactions, goals, and scenarios directly through `@nexgile/db`; do not duplicate them. `seed-output.json` supplies demo IDs and the intentionally seeded wash-sale pair. `Plan` is intentionally minimal for an additive Part 2 extension.

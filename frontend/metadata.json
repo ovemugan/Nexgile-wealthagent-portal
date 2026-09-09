@@ -1,0 +1,6 @@
+{
+  "name": "Nexgile Private Wealth",
+  "description": "Bespoke sovereign ledger and private wealth platform featuring consolidated portfolio management, stochastic Monte Carlo projections, fiduciary mandate rebalancing, and cross-platform mobile and web views.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
