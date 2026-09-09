@@ -1,4 +1,4 @@
-# 🏦 Nexgile WealthAgent
+# 🏦 WealthAgent
 
 Nexgile WealthAgent is a professional-grade wealth management platform designed to streamline the interaction between financial advisors and their clients. The platform consists of a centralized **Core Platform** for data management and an **Advisor Workstation** for strategic portfolio planning and client management.
 
@@ -111,8 +111,3 @@ nexgile/
 │   └── docker-compose.yml   # Infrastructure orchestration
 └── frontend/               # React-based user interface
 ```
-
----
-
-## 📝 License
-*Proprietary - Nexgile*
